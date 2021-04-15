@@ -38,6 +38,7 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 			BoardID: board.ID,
 			Title: input.Title,
 			Password: input.Password,
+			Status: model.ThreadStatusPrepare,
 		}
 		data, err := ct(thread)
 		if err != nil {

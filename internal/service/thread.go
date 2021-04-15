@@ -27,7 +27,7 @@ func GetThreads(ctx *context.Context) func(int, int, int) ([]model.Thread, int64
 		if err != nil {
 			return threads, count, err
 		}
-		db.Model(&model.Thread{}).Where("board_id = ?", boardId).Order("updated_at asc").Limit(limit).Offset(offset).Find(&threads).Count(&count)
+		db.Model(&model.Thread{}).Where("board_id = ? AND status = ?", boardId, model.ThreadStatusConfirm).Order("updated_at asc").Limit(limit).Offset(offset).Find(&threads).Count(&count)
 		return threads, count, err
 	}
 }
@@ -39,7 +39,7 @@ func GetThread(ctx *context.Context) func(string) (model.Thread, int64, error) {
 		if err != nil {
 			return thread, count, err
 		}
-		db.Model(&model.Thread{}).Where("id = ?", id).Find(&thread).Count(&count)
+		db.Model(&model.Thread{}).Where("id = ? AND status = ?", id, model.ThreadStatusConfirm).Find(&thread).Count(&count)
 		return thread, count, nil
 	}
 }

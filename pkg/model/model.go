@@ -15,15 +15,15 @@ type Board struct {
 }
 
 type Thread struct {
-	ID        uint       `json:"id" gorm:"primaryKey;"`
-	BoardID   uint       `json:"board_id" gorm:"notNull;index:idx_board_title;"`
-	Title     string     `json:"title" gorm:"size:50;notNull;index:idx_board_title;"`
-	Password  string     `json:"password" gorm:"size:256;notNull;"`
-	Status    string     `json:"status" gorm:"size:16;notNull;index;"`
-	CreatedAt time.Time  `json:"created_at" gorm:"notNull;autoCreateTime;"`
-	UpdatedAt time.Time  `json:"updated_at" gorm:"notNull;autoUpdateTime;index;"`
-	DeletedAt time.Time  `json:"deleted_at" gorm:"notNull;autoDeleteTime;index;"`
-	Responses []Response `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ID        uint         `json:"id" gorm:"primaryKey;"`
+	BoardID   uint         `json:"board_id" gorm:"notNull;index:idx_board_title;"`
+	Title     string       `json:"title" gorm:"size:50;notNull;index:idx_board_title;"`
+	Password  string       `json:"password" gorm:"size:256;notNull;"`
+	Status    ThreadStatus `json:"status" gorm:"size:16;notNull;index;"`
+	CreatedAt time.Time    `json:"created_at" gorm:"notNull;autoCreateTime;"`
+	UpdatedAt time.Time    `json:"updated_at" gorm:"notNull;autoUpdateTime;index;"`
+	DeletedAt time.Time    `json:"deleted_at" gorm:"notNull;autoDeleteTime;index;"`
+	Responses []Response   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Response struct {
@@ -40,3 +40,10 @@ type Response struct {
 	UpdatedAt  time.Time `json:"updated_at" gorm:"notNull;autoUpdateTime;"`
 	DeletedAt  time.Time `json:"deleted_at" gorm:"notNull;autoDeleteTime;"`
 }
+
+type ThreadStatus string
+
+const (
+	ThreadStatusPrepare ThreadStatus = "PREPARE"
+	ThreadStatusConfirm ThreadStatus = "CONFIRM"
+)
