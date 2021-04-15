@@ -13,4 +13,9 @@ func SetRouteRoot(ctx *context.Context, r *gin.RouterGroup) {
 	r.GET("/boards/:id", controller.GetBoard(ctx))
 	r.POST("/boards", controller.CreateBoard(ctx))
 	r.PUT("/boards/:id", controller.UpdateBoard(ctx))
+
+	r.GET("/threads", controller.GetThreads(ctx))
+	r.GET("/threads/:id", controller.GetThread(ctx))
+	r.POST("/threads", controller.CreateThread(ctx))
+	r.PUT("/threads/:id", controller.UpdateThread(ctx))
 }

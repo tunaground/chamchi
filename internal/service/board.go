@@ -38,9 +38,9 @@ func GetBoards(ctx *context.Context) func(int, int) ([]model.Board, int64, error
 	}
 }
 
-func GetBoard(ctx *context.Context) func(string) (model.Board, int64, error) {
+func GetBoard(ctx *context.Context) func(int) (model.Board, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(id string) (board model.Board, count int64, err error) {
+	return func(id int) (board model.Board, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return board, count, err

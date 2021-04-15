@@ -2,11 +2,13 @@ package controller
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/tunarider/chamchi/internal/service"
 	"github.com/tunarider/chamchi/internal/util"
 	"github.com/tunarider/chamchi/pkg/model"
-	"net/http"
 )
 
 type CreateBoardInput struct {
@@ -66,7 +68,12 @@ func GetBoards(ctx *context.Context) gin.HandlerFunc {
 func GetBoard(ctx *context.Context) gin.HandlerFunc {
 	gb := service.GetBoard(ctx)
 	return func(c *gin.Context) {
-		board, count, err := gb(c.Param("id"))
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		board, count, err := gb(id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -97,7 +104,12 @@ func UpdateBoard(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		board, count, err := gb(c.Param("id"))
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		board, count, err := gb(id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

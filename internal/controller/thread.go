@@ -17,6 +17,7 @@ type CreateThreadInput struct {
 }
 
 func CreateThread(ctx *context.Context) gin.HandlerFunc {
+	gb := service.GetBoard(ctx)
 	ct := service.CreateThread(ctx)
 	return func(c *gin.Context) {
 		var input CreateThreadInput
@@ -24,8 +25,17 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
+		board, count, err := gb(int(input.BoardID))
+		if count == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			return
+		}
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
 		thread := model.Thread{
-			BoardID: input.BoardID,
+			BoardID: board.ID,
 			Title: input.Title,
 			Password: input.Password,
 		}
@@ -107,6 +117,7 @@ type UpdateThreadInput struct {
 }
 
 func UpdateThread(ctx *context.Context) gin.HandlerFunc {
+	gb := service.GetBoard(ctx)
 	gt := service.GetThread(ctx)
 	ut := service.UpdateThread(ctx)
 	return func(c *gin.Context) {
@@ -127,6 +138,18 @@ func UpdateThread(ctx *context.Context) gin.HandlerFunc {
 		if thread.Password != input.Password {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "wrong thread password"})
 			return
+		}
+		if thread.BoardID != input.BoardID {
+			board, count, err := gb(int(input.BoardID))
+			if count == 0 {
+				c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+				return
+			}
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			thread.BoardID = board.ID
 		}
 		thread.BoardID = input.BoardID
 		thread.Title = input.Title
