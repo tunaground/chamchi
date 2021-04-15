@@ -11,8 +11,8 @@ import (
 )
 
 type CreateThreadInput struct {
-	BoardID uint `json:"board_id"`
-	Title string `json:"title"`
+	BoardID  uint   `json:"board_id"`
+	Title    string `json:"title"`
 	Password string `json:"password"`
 }
 
@@ -35,10 +35,10 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		thread := model.Thread{
-			BoardID: board.ID,
-			Title: input.Title,
+			BoardID:  board.ID,
+			Title:    input.Title,
 			Password: input.Password,
-			Status: model.ThreadStatusPrepare,
+			Status:   model.ThreadStatusPrepare,
 		}
 		data, err := ct(thread)
 		if err != nil {
@@ -71,7 +71,7 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		threads, count, err := gts(int(input.BoardID), pagination.Offset, pagination.Limit)
+		threads, count, err := gts(int(input.BoardID), model.ThreadStatusConfirm, pagination.Offset, pagination.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -92,7 +92,7 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 func GetThread(ctx *context.Context) gin.HandlerFunc {
 	gt := service.GetThread(ctx)
 	return func(c *gin.Context) {
-		thread, count, err := gt(c.Param("id"))
+		thread, count, err := gt(c.Param("id"), model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -111,17 +111,26 @@ func GetThread(ctx *context.Context) gin.HandlerFunc {
 }
 
 type UpdateThreadInput struct {
-	BoardID uint `json:"board_id"`
-	Title string `json:"title"`
-	Password string `json:"password"`
+	BoardID     uint   `json:"board_id"`
+	Title       string `json:"title"`
+	Password    string `json:"password"`
 	NewPassword string `json:"new_password"`
+}
+
+type RouteUpdateThreadQuery struct {
+	Confirm string `form:"confirm"`
 }
 
 func RouteUpdateThread(ctx *context.Context) gin.HandlerFunc {
 	ct := confirmThread(ctx)
 	ut := updateThread(ctx)
 	return func(c *gin.Context) {
-		if c.Param("confirm") == "true" {
+		var query RouteUpdateThreadQuery
+		if err := c.Bind(&query); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		if query.Confirm == "true" {
 			ct(c)
 		} else {
 			ut(c)
@@ -133,7 +142,7 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 	gt := service.GetThread(ctx)
 	ut := service.UpdateThread(ctx)
 	return func(c *gin.Context) {
-		thread, count, err := gt(c.Param("id"))
+		thread, count, err := gt(c.Param("id"), model.ThreadStatusPrepare)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -156,10 +165,8 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 				},
 			})
 		} else {
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"message": "thread is empty"})
-				return
-			}
+			c.JSON(http.StatusBadRequest, gin.H{"message": "thread is empty"})
+			return
 		}
 	}
 }
@@ -174,7 +181,7 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		thread, count, err := gt(c.Param("id"))
+		thread, count, err := gt(c.Param("id"), model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

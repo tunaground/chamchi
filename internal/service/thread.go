@@ -20,26 +20,27 @@ func CreateThread(ctx *context.Context) func(model.Thread) (model.Thread, error)
 	}
 }
 
-func GetThreads(ctx *context.Context) func(int, int, int) ([]model.Thread, int64, error) {
+func GetThreads(ctx *context.Context) func(int, model.ThreadStatus, int, int) ([]model.Thread, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(boardId int, offset int, limit int) (threads []model.Thread, count int64, err error) {
+	return func(boardId int, status model.ThreadStatus, offset int, limit int) (threads []model.Thread, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return threads, count, err
 		}
-		db.Model(&model.Thread{}).Where("board_id = ? AND status = ?", boardId, model.ThreadStatusConfirm).Order("updated_at asc").Limit(limit).Offset(offset).Find(&threads).Count(&count)
+		db.Model(&model.Thread{}).Where("board_id = ? AND status = ?", boardId, status).Order("updated_at asc").Limit(limit).Offset(offset).Find(&threads).Count(&count)
 		return threads, count, err
 	}
 }
 
-func GetThread(ctx *context.Context) func(string) (model.Thread, int64, error) {
+func GetThread(ctx *context.Context) func(string, model.ThreadStatus) (model.Thread, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(id string) (thread model.Thread, count int64, err error) {
+	return func(id string, status model.ThreadStatus) (thread model.Thread, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return thread, count, err
 		}
-		db.Model(&model.Thread{}).Where("id = ? AND status = ?", id, model.ThreadStatusConfirm).Find(&thread).Count(&count)
+		db.Model(&model.Thread{}).Where("id = ? AND status = ?", id, status).Find(&thread).Count(&count)
+		db.Model(&thread).Association("responses")
 		return thread, count, nil
 	}
 }

@@ -1,17 +1,17 @@
 ###
-GET http://localhost:8080/boards
+GET http://localhost:8080/api/v1/boards
 Accept: application/json
 
 ###
-GET http://localhost:8080/boards?limit=1
+GET http://localhost:8080/api/v1/boards?limit=1
 Accept: application/json
 
 ###
-GET http://localhost:8080/boards/1
+GET http://localhost:8080/api/v1/boards/1
 Accept: application/json
 
 ###
-POST http://localhost:8080/boards
+POST http://localhost:8080/api/v1/boards
 Accept: application/json
 Content-Type: application/json
 
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/boards/1
+PUT http://localhost:8080/api/v1/boards/1
 Accept: application/json
 Content-Type: application/json
 

@@ -60,7 +60,7 @@ func Serve(c *cli.Context) error {
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
 	engine.Use(middleware.Options([]string{"OPTIONS", "POST", "GET", "PUT"}))
-	route.SetRouteRoot(&ctx, engine.Group("/"))
+	route.Route(&ctx, engine.Group("/"))
 	err = engine.Run(fmt.Sprintf("%s:%d", c.String("host"), c.Int("port")))
 	if err != nil {
 		return cli.Exit("failed to start engine", 1)

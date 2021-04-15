@@ -1,0 +1,50 @@
+###
+GET http://localhost:8080/api/v1/threads
+Accept: application/json
+Content-Type: application/json
+
+{
+  "board_id": 1
+}
+
+###
+GET http://localhost:8080/api/v1/threads?limit=1
+Accept: application/json
+Content-Type: application/json
+
+{
+  "board_id": 1
+}
+
+###
+GET http://localhost:8080/api/v1/threads/1
+Accept: application/json
+Content-Type: application/json
+
+{
+  "board_id": 1
+}
+
+###
+POST http://localhost:8080/api/v1/threads
+Accept: application/json
+Content-Type: application/json
+
+{
+  "board_id": 1,
+  "title": "test",
+  "password": "test"
+}
+
+###
+PUT http://localhost:8080/api/v1/threads/1?confirm=true
+Accept: application/json
+
+###
+PUT http://localhost:8080/api/v1/threads/1
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "테스트2"
+}
