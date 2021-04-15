@@ -15,7 +15,7 @@ type Board struct {
 }
 
 type Thread struct {
-	ID        uint       `json:"id" gorm:"primaryKey";`
+	ID        uint       `json:"id" gorm:"primaryKey;"`
 	BoardID   uint       `json:"board_id" gorm:"notNull;index:idx_board_title;"`
 	Title     string     `json:"title" gorm:"size:50;notNull;index:idx_board_title;"`
 	Password  string     `json:"password" gorm:"size:256;notNull;"`
