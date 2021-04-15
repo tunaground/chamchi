@@ -117,7 +117,54 @@ type UpdateThreadInput struct {
 	NewPassword string `json:"new_password"`
 }
 
-func UpdateThread(ctx *context.Context) gin.HandlerFunc {
+func RouteUpdateThread(ctx *context.Context) gin.HandlerFunc {
+	ct := confirmThread(ctx)
+	ut := updateThread(ctx)
+	return func(c *gin.Context) {
+		if c.Param("confirm") == "true" {
+			ct(c)
+		} else {
+			ut(c)
+		}
+	}
+}
+
+func confirmThread(ctx *context.Context) gin.HandlerFunc {
+	gt := service.GetThread(ctx)
+	ut := service.UpdateThread(ctx)
+	return func(c *gin.Context) {
+		thread, count, err := gt(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		if count == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			return
+		}
+		if len(thread.Responses) == 1 {
+			thread.Status = model.ThreadStatusConfirm
+			data, err := ut(thread)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, gin.H{
+				"message": "ok",
+				"data": gin.H{
+					"thread": data,
+				},
+			})
+		} else {
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": "thread is empty"})
+				return
+			}
+		}
+	}
+}
+
+func updateThread(ctx *context.Context) gin.HandlerFunc {
 	gb := service.GetBoard(ctx)
 	gt := service.GetThread(ctx)
 	ut := service.UpdateThread(ctx)
