@@ -44,6 +44,10 @@ func Migrate(c *cli.Context) error {
 	if err != nil {
 		return cli.Exit(util.StackError(errors.New("failed to create thread table"), err), 1)
 	}
+	err = createTable(db, force, model.Response{})
+	if err != nil {
+		return cli.Exit(util.StackError(errors.New("failed to create response table"), err), 1)
+	}
 	return nil
 }
 
