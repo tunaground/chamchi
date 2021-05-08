@@ -17,15 +17,15 @@ type CreateThreadInput struct {
 }
 
 func CreateThread(ctx *context.Context) gin.HandlerFunc {
-	gb := service.GetBoard(ctx)
-	ct := service.CreateThread(ctx)
+	getBoardService := service.GetBoard(ctx)
+	createThreadService := service.CreateThread(ctx)
 	return func(c *gin.Context) {
 		var input CreateThreadInput
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		board, count, err := gb(int(input.BoardID))
+		board, count, err := getBoardService(int(input.BoardID))
 		if count == 0 {
 			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
 			return
@@ -40,7 +40,7 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 			Password: input.Password,
 			Status:   model.ThreadStatusPrepare,
 		}
-		data, err := ct(thread)
+		data, err := createThreadService(thread)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -59,7 +59,7 @@ type GetThreadsInput struct {
 }
 
 func GetThreads(ctx *context.Context) gin.HandlerFunc {
-	gts := service.GetThreads(ctx)
+	getThreadsService := service.GetThreads(ctx)
 	return func(c *gin.Context) {
 		var input GetThreadsInput
 		if err := c.ShouldBindJSON(&input); err != nil {
@@ -71,7 +71,7 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		threads, count, err := gts(int(input.BoardID), model.ThreadStatusConfirm, pagination.Offset, pagination.Limit)
+		threads, count, err := getThreadsService(int(input.BoardID), model.ThreadStatusConfirm, pagination.Offset, pagination.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -90,9 +90,9 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 }
 
 func GetThread(ctx *context.Context) gin.HandlerFunc {
-	gt := service.GetThread(ctx)
+	getThreadService := service.GetThread(ctx)
 	return func(c *gin.Context) {
-		thread, count, err := gt(c.Param("id"), model.ThreadStatusConfirm)
+		thread, count, err := getThreadService(c.Param("id"), model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -139,10 +139,10 @@ func RouteUpdateThread(ctx *context.Context) gin.HandlerFunc {
 }
 
 func confirmThread(ctx *context.Context) gin.HandlerFunc {
-	gt := service.GetThread(ctx)
-	ut := service.UpdateThread(ctx)
+	getThreadService := service.GetThread(ctx)
+	updateThreadService := service.UpdateThread(ctx)
 	return func(c *gin.Context) {
-		thread, count, err := gt(c.Param("id"), model.ThreadStatusPrepare)
+		thread, count, err := getThreadService(c.Param("id"), model.ThreadStatusPrepare)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -153,7 +153,7 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 		}
 		if len(thread.Responses) == 1 {
 			thread.Status = model.ThreadStatusConfirm
-			data, err := ut(thread)
+			data, err := updateThreadService(thread)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 				return
@@ -172,16 +172,16 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 }
 
 func updateThread(ctx *context.Context) gin.HandlerFunc {
-	gb := service.GetBoard(ctx)
-	gt := service.GetThread(ctx)
-	ut := service.UpdateThread(ctx)
+	getBoardService := service.GetBoard(ctx)
+	getThreadService := service.GetThread(ctx)
+	updateThreadService := service.UpdateThread(ctx)
 	return func(c *gin.Context) {
 		var input UpdateThreadInput
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		thread, count, err := gt(c.Param("id"), model.ThreadStatusConfirm)
+		thread, count, err := getThreadService(c.Param("id"), model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -195,7 +195,7 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if thread.BoardID != input.BoardID {
-			board, count, err := gb(int(input.BoardID))
+			board, count, err := getBoardService(int(input.BoardID))
 			if count == 0 {
 				c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
 				return
@@ -211,7 +211,7 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 		if input.NewPassword != "" {
 			thread.Password = input.NewPassword
 		}
-		data, err := ut(thread)
+		data, err := updateThreadService(thread)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

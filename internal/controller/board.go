@@ -17,7 +17,7 @@ type CreateBoardInput struct {
 }
 
 func CreateBoard(ctx *context.Context) gin.HandlerFunc {
-	cb := service.CreateBoard(ctx)
+	createBoardService := service.CreateBoard(ctx)
 	return func(c *gin.Context) {
 		var input CreateBoardInput
 		if err := c.ShouldBindJSON(&input); err != nil {
@@ -25,7 +25,7 @@ func CreateBoard(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		board := model.Board{Key: input.Key, Name: input.Name}
-		data, err := cb(board)
+		data, err := createBoardService(board)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -40,14 +40,14 @@ func CreateBoard(ctx *context.Context) gin.HandlerFunc {
 }
 
 func GetBoards(ctx *context.Context) gin.HandlerFunc {
-	gbs := service.GetBoards(ctx)
+	getBoardsService := service.GetBoards(ctx)
 	return func(c *gin.Context) {
 		var pagination util.Pagination
 		if err := c.Bind(&pagination); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		boards, count, err := gbs(pagination.Offset, pagination.Limit)
+		boards, count, err := getBoardsService(pagination.Offset, pagination.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -66,14 +66,14 @@ func GetBoards(ctx *context.Context) gin.HandlerFunc {
 }
 
 func GetBoard(ctx *context.Context) gin.HandlerFunc {
-	gb := service.GetBoard(ctx)
+	getBoardService := service.GetBoard(ctx)
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		board, count, err := gb(id)
+		board, count, err := getBoardService(id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -96,8 +96,8 @@ type UpdateBoardInput struct {
 }
 
 func UpdateBoard(ctx *context.Context) gin.HandlerFunc {
-	gb := service.GetBoard(ctx)
-	ub := service.UpdateBoard(ctx)
+	getBoardService := service.GetBoard(ctx)
+	updateBoardService := service.UpdateBoard(ctx)
 	return func(c *gin.Context) {
 		var input UpdateBoardInput
 		if err := c.ShouldBindJSON(&input); err != nil {
@@ -109,7 +109,7 @@ func UpdateBoard(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		board, count, err := gb(id)
+		board, count, err := getBoardService(id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -119,7 +119,7 @@ func UpdateBoard(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		board.Name = input.Name
-		data, err := ub(board)
+		data, err := updateBoardService(board)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
