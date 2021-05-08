@@ -32,9 +32,9 @@ func GetThreads(ctx *context.Context) func(int, model.ThreadStatus, int, int) ([
 	}
 }
 
-func GetThread(ctx *context.Context) func(string, model.ThreadStatus) (model.Thread, int64, error) {
+func GetThread(ctx *context.Context) func(int, model.ThreadStatus) (model.Thread, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(id string, status model.ThreadStatus) (thread model.Thread, count int64, err error) {
+	return func(id int, status model.ThreadStatus) (thread model.Thread, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return thread, count, err

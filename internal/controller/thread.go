@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tunarider/chamchi/internal/service"
@@ -92,7 +93,12 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 func GetThread(ctx *context.Context) gin.HandlerFunc {
 	getThreadService := service.GetThread(ctx)
 	return func(c *gin.Context) {
-		thread, count, err := getThreadService(c.Param("id"), model.ThreadStatusConfirm)
+		threadId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		thread, count, err := getThreadService(threadId, model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -142,7 +148,12 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 	getThreadService := service.GetThread(ctx)
 	updateThreadService := service.UpdateThread(ctx)
 	return func(c *gin.Context) {
-		thread, count, err := getThreadService(c.Param("id"), model.ThreadStatusPrepare)
+		threadId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		thread, count, err := getThreadService(threadId, model.ThreadStatusPrepare)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -181,7 +192,12 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		thread, count, err := getThreadService(c.Param("id"), model.ThreadStatusConfirm)
+		threadId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		thread, count, err := getThreadService(threadId, model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
