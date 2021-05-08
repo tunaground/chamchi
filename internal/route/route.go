@@ -8,20 +8,16 @@ import (
 
 func Route(ctx *context.Context, r *gin.RouterGroup) {
 	r.GET("/health", controller.Health())
-	api := r.Group("/api")
-	routeApi(ctx, api)
+	routeApi(ctx, r.Group("/api"))
 }
 
 func routeApi(ctx *context.Context, r *gin.RouterGroup) {
-	v1 := r.Group("/v1")
-	routeV1(ctx, v1)
+	routeV1(ctx, r.Group("/v1"))
 }
 
 func routeV1(ctx *context.Context, r *gin.RouterGroup) {
-	boards := r.Group("/boards")
-	routeBoards(ctx, boards)
-	threads := r.Group("/threads")
-	routeThreads(ctx, threads)
+	routeBoards(ctx, r.Group("/boards"))
+	routeThreads(ctx, r.Group("/threads"))
 }
 
 func routeBoards(ctx *context.Context, r *gin.RouterGroup) {
