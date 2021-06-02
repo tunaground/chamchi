@@ -44,6 +44,7 @@ type Response struct {
 type ThreadStatus string
 
 const (
+	ThreadStatusAll     ThreadStatus = "ALL"
 	ThreadStatusPrepare ThreadStatus = "PREPARE"
 	ThreadStatusConfirm ThreadStatus = "CONFIRM"
 )

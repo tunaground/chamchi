@@ -28,7 +28,7 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 		}
 		board, count, err := getBoardService(int(input.BoardID))
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		if err != nil {
@@ -78,7 +78,7 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
@@ -104,7 +104,7 @@ func GetThread(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
@@ -159,7 +159,7 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		if len(thread.Responses) == 1 {
@@ -203,7 +203,7 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		if thread.Password != input.Password {
@@ -213,7 +213,7 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 		if thread.BoardID != input.BoardID {
 			board, count, err := getBoardService(int(input.BoardID))
 			if count == 0 {
-				c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+				c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 				return
 			}
 			if err != nil {

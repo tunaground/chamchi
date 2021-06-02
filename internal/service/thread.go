@@ -39,8 +39,15 @@ func GetThread(ctx *context.Context) func(int, model.ThreadStatus) (model.Thread
 		if err != nil {
 			return thread, count, err
 		}
-		db.Model(&model.Thread{}).Where("id = ? AND status = ?", id, status).Find(&thread).Count(&count)
-		db.Model(&thread).Association("responses")
+		if status == model.ThreadStatusAll {
+			db.Model(&model.Thread{}).Where("id = ?", id).Find(&thread).Count(&count)
+		} else {
+			db.Model(&model.Thread{}).Where("id = ? AND status = ?", id, status).Find(&thread).Count(&count)
+		}
+		err = db.Model(&thread).Association("Responses").Find(&thread.Responses)
+		if err != nil {
+			return thread, count, err
+		}
 		return thread, count, nil
 	}
 }

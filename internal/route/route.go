@@ -18,6 +18,7 @@ func routeApi(ctx *context.Context, r *gin.RouterGroup) {
 func routeV1(ctx *context.Context, r *gin.RouterGroup) {
 	routeBoards(ctx, r.Group("/boards"))
 	routeThreads(ctx, r.Group("/threads"))
+	routeResponses(ctx, r.Group("/responses"))
 }
 
 func routeBoards(ctx *context.Context, r *gin.RouterGroup) {
@@ -32,4 +33,8 @@ func routeThreads(ctx *context.Context, r *gin.RouterGroup) {
 	r.GET("/:id", controller.GetThread(ctx))
 	r.POST("", controller.CreateThread(ctx))
 	r.PUT("/:id", controller.RouteUpdateThread(ctx))
+}
+
+func routeResponses(ctx *context.Context, r *gin.RouterGroup) {
+	r.POST("", controller.CreateResponse(ctx))
 }

@@ -53,7 +53,7 @@ func GetBoards(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
@@ -79,7 +79,7 @@ func GetBoard(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
@@ -115,7 +115,7 @@ func UpdateBoard(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "ok"})
+			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
 		}
 		board.Name = input.Name
