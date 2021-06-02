@@ -10,7 +10,7 @@ import (
 func main() {
 	app := &cli.App{
 		Name:     "Chamchi",
-		Usage:    "스레드 형식 웹 게시판 API 서버",
+		Usage:    "참치게시판 API 서버",
 		Version:  "v0.0.0",
 		Compiled: time.Now(),
 		Authors: []*cli.Author{
@@ -33,7 +33,7 @@ func main() {
 			{
 				Name:    "serve",
 				Aliases: []string{"s"},
-				Usage:   "Chamchi 서버 구동",
+				Usage:   "서버 구동",
 				Action:  command.Serve,
 				Flags: append(
 					command.ServeFlags(),
