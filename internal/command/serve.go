@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/tunarider/chamchi/internal/middleware"
 	"github.com/tunarider/chamchi/internal/route"
@@ -59,6 +60,7 @@ func Serve(c *cli.Context) error {
 	engine := gin.New()
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
+	engine.Use(cors.Default())
 	engine.Use(middleware.Options([]string{"OPTIONS", "POST", "GET", "PUT"}))
 	route.Route(&ctx, engine.Group("/"))
 	err = engine.Run(fmt.Sprintf("%s:%d", c.String("host"), c.Int("port")))
