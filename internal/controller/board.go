@@ -47,7 +47,12 @@ func GetBoards(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		boards, count, err := getBoardsService(pagination.Offset, pagination.Limit)
+		boardQuery := service.BoardQuery{}
+		boardKey, ok := c.GetQuery("key")
+		if ok {
+			boardQuery.Key = boardKey
+		}
+		boards, count, err := getBoardsService(boardQuery, pagination.Offset, pagination.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -92,7 +97,7 @@ func GetBoard(ctx *context.Context) gin.HandlerFunc {
 }
 
 type UpdateBoardInput struct {
-	Name string `json:"Name"`
+	Name string `json:"Key"`
 }
 
 func UpdateBoard(ctx *context.Context) gin.HandlerFunc {

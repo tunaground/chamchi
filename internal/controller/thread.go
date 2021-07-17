@@ -56,14 +56,14 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 }
 
 type GetThreadsInput struct {
-	BoardID uint `json:"board_id"`
+	BoardID uint `form:"board_id"`
 }
 
 func GetThreads(ctx *context.Context) gin.HandlerFunc {
 	getThreadsService := service.GetThreads(ctx)
 	return func(c *gin.Context) {
 		var input GetThreadsInput
-		if err := c.ShouldBindJSON(&input); err != nil {
+		if err := c.ShouldBindQuery(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}

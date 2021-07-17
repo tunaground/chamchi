@@ -26,14 +26,22 @@ func CreateBoard(ctx *context.Context) func(model.Board) (model.Board, error) {
 	}
 }
 
-func GetBoards(ctx *context.Context) func(int, int) ([]model.Board, int64, error) {
+type BoardQuery struct {
+	Key string
+}
+
+func GetBoards(ctx *context.Context) func(BoardQuery, int, int) ([]model.Board, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(offset int, limit int) (boards []model.Board, count int64, err error) {
+	return func(query BoardQuery, offset int, limit int) (boards []model.Board, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return boards, count, err
 		}
-		db.Order("name asc").Limit(limit).Offset(offset).Find(&boards).Count(&count)
+		if query.Key != "" {
+			db.Where("`key` = ?", query.Key).First(&boards).Count(&count)
+		} else {
+			db.Order("name asc").Limit(limit).Offset(offset).Find(&boards).Count(&count)
+		}
 		return boards, count, err
 	}
 }
