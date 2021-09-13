@@ -20,29 +20,29 @@ func CreateThread(ctx *context.Context) func(model.Thread) (model.Thread, error)
 	}
 }
 
-func GetThreads(ctx *context.Context) func(int, model.ThreadStatus, int, int) ([]model.Thread, int64, error) {
+func GetThreads(ctx *context.Context) func(uint, model.ThreadStatus, int, int) ([]model.Thread, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(boardId int, status model.ThreadStatus, offset int, limit int) (threads []model.Thread, count int64, err error) {
+	return func(boardId uint, status model.ThreadStatus, offset int, limit int) (threads []model.Thread, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return threads, count, err
 		}
-		db.Model(&model.Thread{}).Where("board_id = ? AND status = ?", boardId, status).Order("updated_at asc").Limit(limit).Offset(offset).Find(&threads).Count(&count)
+		db.Where(&model.Thread{BoardID: boardId, Status: status}).Order("updated_at asc").Limit(limit).Offset(offset).Find(&threads).Count(&count)
 		return threads, count, err
 	}
 }
 
-func GetThread(ctx *context.Context) func(int, model.ThreadStatus) (model.Thread, int64, error) {
+func GetThread(ctx *context.Context) func(uint, model.ThreadStatus) (model.Thread, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(id int, status model.ThreadStatus) (thread model.Thread, count int64, err error) {
+	return func(id uint, status model.ThreadStatus) (thread model.Thread, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return thread, count, err
 		}
 		if status == model.ThreadStatusAll {
-			db.Model(&model.Thread{}).Where("id = ?", id).Find(&thread).Count(&count)
+			db.Where(&model.Thread{ID: id}).Find(&thread).Count(&count)
 		} else {
-			db.Model(&model.Thread{}).Where("id = ? AND status = ?", id, status).Find(&thread).Count(&count)
+			db.Where(&model.Thread{ID: id, Status: status}).Find(&thread).Count(&count)
 		}
 		err = db.Model(&thread).Association("Responses").Find(&thread.Responses)
 		if err != nil {

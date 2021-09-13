@@ -33,7 +33,7 @@ func CreateResponse(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		thread, count, err := getThreadService(int(input.ThreadID), model.ThreadStatusAll)
+		thread, count, err := getThreadService(input.ThreadID, model.ThreadStatusAll)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

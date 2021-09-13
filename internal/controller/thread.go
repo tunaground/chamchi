@@ -72,7 +72,7 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		threads, count, err := getThreadsService(int(input.BoardID), model.ThreadStatusConfirm, pagination.Offset, pagination.Limit)
+		threads, count, err := getThreadsService(input.BoardID, model.ThreadStatusConfirm, pagination.Offset, pagination.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -98,7 +98,7 @@ func GetThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		thread, count, err := getThreadService(threadId, model.ThreadStatusConfirm)
+		thread, count, err := getThreadService(uint(threadId), model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -153,7 +153,7 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		thread, count, err := getThreadService(threadId, model.ThreadStatusPrepare)
+		thread, count, err := getThreadService(uint(threadId), model.ThreadStatusPrepare)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -197,7 +197,7 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		thread, count, err := getThreadService(threadId, model.ThreadStatusConfirm)
+		thread, count, err := getThreadService(uint(threadId), model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
