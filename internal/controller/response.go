@@ -13,7 +13,7 @@ func getUserIP(c *gin.Context) string {
 }
 
 func createUserId(c *gin.Context) string {
-	return getUserIP(c)[:9]
+	return getUserIP(c)[:1]
 }
 
 type CreateResponseInput struct {
