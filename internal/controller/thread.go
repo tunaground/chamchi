@@ -2,13 +2,11 @@ package controller
 
 import (
 	"context"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/tunarider/chamchi/internal/service"
 	"github.com/tunarider/chamchi/internal/util"
 	"github.com/tunarider/chamchi/pkg/model"
+	"net/http"
 )
 
 type CreateThreadInput struct {
@@ -26,7 +24,8 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		board, count, err := getBoardService(int(input.BoardID))
+		query := map[string]interface{}{"id": input.BoardID}
+		board, count, err := getBoardService(query)
 		if count == 0 {
 			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
@@ -55,24 +54,33 @@ func CreateThread(ctx *context.Context) gin.HandlerFunc {
 	}
 }
 
-type GetThreadsInput struct {
-	BoardID uint `form:"board_id"`
-}
-
 func GetThreads(ctx *context.Context) gin.HandlerFunc {
 	getThreadsService := service.GetThreads(ctx)
 	return func(c *gin.Context) {
-		var input GetThreadsInput
-		if err := c.ShouldBindQuery(&input); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		query := map[string]interface{}{}
+		boardID, boardOK := c.GetQuery("board_id")
+		threadID, threadOK := c.GetQuery("id")
+		if boardOK {
+			query["board_id"] = boardID
+		}
+		if threadOK {
+			query["id"] = threadID
+		}
+		if !boardOK && !threadOK {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "empty id"})
 			return
+		}
+		if status, ok := c.GetQuery("status"); ok {
+			query["status"] = status
+		} else {
+			query["status"] = model.ThreadStatusConfirm
 		}
 		var pagination util.Pagination
 		if err := c.Bind(&pagination); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		threads, count, err := getThreadsService(input.BoardID, model.ThreadStatusConfirm, pagination.Offset, pagination.Limit)
+		threads, count, err := getThreadsService(query, pagination.Offset, pagination.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -85,32 +93,6 @@ func GetThreads(ctx *context.Context) gin.HandlerFunc {
 			"message": "ok",
 			"data": gin.H{
 				"threads": threads,
-			},
-		})
-	}
-}
-
-func GetThread(ctx *context.Context) gin.HandlerFunc {
-	getThreadService := service.GetThread(ctx)
-	return func(c *gin.Context) {
-		threadId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		thread, count, err := getThreadService(uint(threadId), model.ThreadStatusConfirm)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"message": "ok",
-			"data": gin.H{
-				"thread": thread,
 			},
 		})
 	}
@@ -148,12 +130,14 @@ func confirmThread(ctx *context.Context) gin.HandlerFunc {
 	getThreadService := service.GetThread(ctx)
 	updateThreadService := service.UpdateThread(ctx)
 	return func(c *gin.Context) {
-		threadId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		query := map[string]interface{}{}
+		if threadID, ok := c.GetQuery("id"); ok {
+			query["id"] = threadID
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "empty thread id"})
 			return
 		}
-		thread, count, err := getThreadService(uint(threadId), model.ThreadStatusPrepare)
+		thread, count, err := getThreadService(query, model.ThreadStatusPrepare)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -192,12 +176,14 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		threadId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		query := map[string]interface{}{}
+		if threadID, ok := c.GetQuery("id"); ok {
+			query["id"] = threadID
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "empty thread id"})
 			return
 		}
-		thread, count, err := getThreadService(uint(threadId), model.ThreadStatusConfirm)
+		thread, count, err := getThreadService(query, model.ThreadStatusConfirm)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -211,7 +197,8 @@ func updateThread(ctx *context.Context) gin.HandlerFunc {
 			return
 		}
 		if thread.BoardID != input.BoardID {
-			board, count, err := getBoardService(int(input.BoardID))
+			query := map[string]interface{}{"id": input.BoardID}
+			board, count, err := getBoardService(query)
 			if count == 0 {
 				c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 				return

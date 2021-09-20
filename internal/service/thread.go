@@ -20,30 +20,29 @@ func CreateThread(ctx *context.Context) func(model.Thread) (model.Thread, error)
 	}
 }
 
-func GetThreads(ctx *context.Context) func(uint, model.ThreadStatus, int, int) ([]model.Thread, int64, error) {
+func GetThreads(ctx *context.Context) func(map[string]interface{}, int, int) ([]model.Thread, int, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(boardId uint, status model.ThreadStatus, offset int, limit int) (threads []model.Thread, count int64, err error) {
+	return func(query map[string]interface{}, offset int, limit int) (threads []model.Thread, count int, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return threads, count, err
 		}
-		db.Where(&model.Thread{BoardID: boardId, Status: status}).Order("updated_at asc").Limit(limit).Offset(offset).Find(&threads).Count(&count)
-		return threads, count, err
+		db.Where(query).Order("updated_at desc").Limit(limit).Offset(offset).Find(&threads)
+		return threads, len(threads), err
 	}
 }
 
-func GetThread(ctx *context.Context) func(uint, model.ThreadStatus) (model.Thread, int64, error) {
+func GetThread(ctx *context.Context) func(map[string]interface{}, model.ThreadStatus) (model.Thread, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(id uint, status model.ThreadStatus) (thread model.Thread, count int64, err error) {
+	return func(query map[string]interface{}, status model.ThreadStatus) (thread model.Thread, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return thread, count, err
 		}
-		if status == model.ThreadStatusAll {
-			db.Where(&model.Thread{ID: id}).Find(&thread).Count(&count)
-		} else {
-			db.Where(&model.Thread{ID: id, Status: status}).Find(&thread).Count(&count)
+		if status != model.ThreadStatusAll {
+			query["status"] = status
 		}
+		db.Where(query).Find(&thread).Count(&count)
 		err = db.Model(&thread).Association("Responses").Find(&thread.Responses)
 		if err != nil {
 			return thread, count, err

@@ -1,32 +1,18 @@
 ###
-GET http://localhost:8080/api/v1/threads
+GET http://localhost:8080/api/v1/thread?board_id=1
+Accept: application/json
+
+###
+GET http://localhost:8080/api/v1/thread?board_id=1&limit=3&offset=3
+Accept: application/json
+
+###
+GET http://localhost:8080/api/v1/thread?id=1
 Accept: application/json
 Content-Type: application/json
 
-{
-  "board_id": 1
-}
-
 ###
-GET http://localhost:8080/api/v1/threads?limit=1
-Accept: application/json
-Content-Type: application/json
-
-{
-  "board_id": 1
-}
-
-###
-GET http://localhost:8080/api/v1/threads/1
-Accept: application/json
-Content-Type: application/json
-
-{
-  "board_id": 1
-}
-
-###
-POST http://localhost:8080/api/v1/threads
+POST http://localhost:8080/api/v1/thread
 Accept: application/json
 Content-Type: application/json
 
@@ -37,7 +23,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/api/v1/threads/1?confirm=true
+PUT http://localhost:8080/api/v1/thread/24?confirm=true
 Accept: application/json
 
 ###

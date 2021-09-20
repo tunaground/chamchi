@@ -26,34 +26,26 @@ func CreateBoard(ctx *context.Context) func(model.Board) (model.Board, error) {
 	}
 }
 
-type BoardQuery struct {
-	Key string
-}
-
-func GetBoards(ctx *context.Context) func(BoardQuery, int, int) ([]model.Board, int64, error) {
+func GetBoards(ctx *context.Context) func(map[string]interface{}, int, int) ([]model.Board, int, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(query BoardQuery, offset int, limit int) (boards []model.Board, count int64, err error) {
+	return func(query map[string]interface{}, offset int, limit int) (boards []model.Board, count int, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return boards, count, err
 		}
-		if query.Key != "" {
-			db.Where("`key` = ?", query.Key).First(&boards).Count(&count)
-		} else {
-			db.Order("name asc").Limit(limit).Offset(offset).Find(&boards).Count(&count)
-		}
-		return boards, count, err
+		db.Where(query).Order("id asc").Limit(limit).Offset(offset).Find(&boards)
+		return boards, len(boards), err
 	}
 }
 
-func GetBoard(ctx *context.Context) func(int) (model.Board, int64, error) {
+func GetBoard(ctx *context.Context) func(map[string]interface{}) (model.Board, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(id int) (board model.Board, count int64, err error) {
+	return func(query map[string]interface{}) (board model.Board, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return board, count, err
 		}
-		db.Model(&model.Board{}).Where("id = ?", id).Find(&board).Count(&count)
+		db.Where(query).Find(&board).Count(&count)
 		return board, count, nil
 	}
 }

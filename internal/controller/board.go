@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tunarider/chamchi/internal/service"
@@ -47,12 +46,11 @@ func GetBoards(ctx *context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		boardQuery := service.BoardQuery{}
-		boardKey, ok := c.GetQuery("key")
-		if ok {
-			boardQuery.Key = boardKey
+		query := map[string]interface{}{}
+		if key, ok := c.GetQuery("key"); ok {
+			query["key"] = key
 		}
-		boards, count, err := getBoardsService(boardQuery, pagination.Offset, pagination.Limit)
+		boards, count, err := getBoardsService(query, pagination.Offset, pagination.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -70,51 +68,27 @@ func GetBoards(ctx *context.Context) gin.HandlerFunc {
 	}
 }
 
-func GetBoard(ctx *context.Context) gin.HandlerFunc {
-	getBoardService := service.GetBoard(ctx)
-	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		board, count, err := getBoardService(id)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		if count == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"message": "ok",
-			"data": gin.H{
-				"board": board,
-			},
-		})
-	}
-}
-
 type UpdateBoardInput struct {
-	Name string `json:"Key"`
+	Name string `json:"name"`
 }
 
 func UpdateBoard(ctx *context.Context) gin.HandlerFunc {
 	getBoardService := service.GetBoard(ctx)
 	updateBoardService := service.UpdateBoard(ctx)
 	return func(c *gin.Context) {
+		query := map[string]interface{}{}
+		if id, ok := c.GetQuery("id"); ok {
+			query["id"] = id
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "empty id"})
+			return
+		}
 		var input UpdateBoardInput
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		board, count, err := getBoardService(id)
+		board, count, err := getBoardService(query)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

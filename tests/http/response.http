@@ -1,12 +1,20 @@
 ###
-POST http://localhost:8080/api/v1/responses
+POST http://localhost:8080/api/v1/response
 Accept: application/json
 Content-Type: application/json
 
 {
-  "thread_id": 1,
+  "thread_id": 24,
   "username": "testuser",
   "content": "testcontent",
   "attachment": "",
   "youtube": ""
 }
+
+###
+GET http://localhost:8080/api/v1/response?thread_id=1&sequence=0
+Accept: application/json
+
+###
+GET http://localhost:8080/api/v1/response?thread_id=1
+Accept: application/json

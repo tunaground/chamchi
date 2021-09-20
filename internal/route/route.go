@@ -16,25 +16,24 @@ func routeApi(ctx *context.Context, r *gin.RouterGroup) {
 }
 
 func routeV1(ctx *context.Context, r *gin.RouterGroup) {
-	routeBoards(ctx, r.Group("/boards"))
-	routeThreads(ctx, r.Group("/threads"))
-	routeResponses(ctx, r.Group("/responses"))
+	routeBoards(ctx, r.Group("/board"))
+	routeThreads(ctx, r.Group("/thread"))
+	routeResponses(ctx, r.Group("/response"))
 }
 
 func routeBoards(ctx *context.Context, r *gin.RouterGroup) {
 	r.GET("", controller.GetBoards(ctx))
-	r.GET("/:id", controller.GetBoard(ctx))
 	r.POST("", controller.CreateBoard(ctx))
-	r.PUT("/:id", controller.UpdateBoard(ctx))
+	r.PUT("", controller.UpdateBoard(ctx))
 }
 
 func routeThreads(ctx *context.Context, r *gin.RouterGroup) {
 	r.GET("", controller.GetThreads(ctx))
-	r.GET("/:id", controller.GetThread(ctx))
 	r.POST("", controller.CreateThread(ctx))
-	r.PUT("/:id", controller.RouteUpdateThread(ctx))
+	r.PUT("", controller.RouteUpdateThread(ctx))
 }
 
 func routeResponses(ctx *context.Context, r *gin.RouterGroup) {
 	r.POST("", controller.CreateResponse(ctx))
+	r.GET("", controller.GetResponses(ctx))
 }

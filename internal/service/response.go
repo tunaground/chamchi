@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/tunarider/chamchi/internal/util"
 	"github.com/tunarider/chamchi/pkg/model"
 )
@@ -13,6 +14,11 @@ func CreateResponse(ctx *context.Context) func(response model.Response) (model.R
 		if err != nil {
 			return response, err
 		}
+		count := int64(0)
+		db.Where(&model.Response{ThreadID: response.ThreadID, Sequence: response.Sequence}).Count(&count)
+		if count > 0 {
+			return response, errors.New("duplicate response")
+		}
 		if result := db.Create(&response); result.Error != nil {
 			return response, result.Error
 		}
@@ -20,26 +26,26 @@ func CreateResponse(ctx *context.Context) func(response model.Response) (model.R
 	}
 }
 
-func GetResponses(ctx *context.Context) func(int, int, int) ([]model.Response, int64, error) {
+func GetResponses(ctx *context.Context) func(map[string]interface{}, int, int) ([]model.Response, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(threadId int, offset int, limit int) (response []model.Response, count int64, err error) {
+	return func(query map[string]interface{}, offset int, limit int) (response []model.Response, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return response, count, err
 		}
-		db.Model(&model.Response{}).Where("thread_id = ?", threadId).Order("sequence asc").Limit(limit).Offset(offset).Find(&response).Count(&count)
+		db.Where(query).Order("sequence asc").Limit(limit).Offset(offset).Find(&response).Count(&count)
 		return response, count, nil
 	}
 }
 
-func GetResponse(ctx *context.Context) func(int) (model.Response, int64, error) {
+func GetResponse(ctx *context.Context) func(*model.Response) (model.Response, int64, error) {
 	cp := util.ContextParser{Context: ctx}
-	return func(id int) (response model.Response, count int64, err error) {
+	return func(query *model.Response) (response model.Response, count int64, err error) {
 		db, err := cp.Database()
 		if err != nil {
 			return response, count, err
 		}
-		db.Model(&model.Response{}).Where("id = ?", id).Find(&response).Count(&count)
+		db.Where(query).Find(&response).Count(&count)
 		return response, count, nil
 	}
 }
